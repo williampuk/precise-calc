@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Precise Calculator CLI Contract",
+  "description": "Contract for the precise calculator command-line interface",
+  "type": "object",
+  "properties": {
+    "command": {
+      "type": "string",
+      "description": "The calculator executable command",
+      "enum": ["calculator"]
+    },
+    "arguments": {
+      "type": "array",
+      "description": "Command line arguments",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "expression": {
+      "type": "string",
+      "description": "Mathematical expression to evaluate",
+      "pattern": "^[\\s\\t\\n]*[A-Fa-f0-9xEe.+\\-*\\/\\s\\t\\n]+$",
+      "examples": [
+        "1 + 2",
+        "0.0000000000000001 + 0.1 + -99999999999999 - 0xab91",
+        "10 * 0xff + 3.14159",
+        "1E3 + 2.5e-2",
+        "5e6 * 2"
+      ]
+    }
+  },
+  "required": ["command", "arguments"],
+  "responses": {
+    "success": {
+      "exitCode": 0,
+      "stdout": {
+        "type": "string",
+        "description": "The calculated result as a string",
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "stderr": {
+        "type": "string",
+        "maxLength": 0,
+        "description": "No error output on success"
+      }
+    },
+    "error": {
+      "exitCode": 1,
+      "stdout": {
+        "type": "string",
+        "maxLength": 0,
+        "description": "No standard output on error"
+      },
+      "stderr": {
+        "type": "string",
+        "description": "Error message describing the problem",
+        "minLength": 1
+      }
+    }
+  },
+  "errorScenarios": [
+    {
+      "description": "Invalid expression syntax",
+      "input": "1 + ",
+      "expectedExitCode": 1,
+      "expectedStderr": "Error: Invalid expression syntax"
+    },
+    {
+      "description": "Division by zero",
+      "input": "10 / 0",
+      "expectedExitCode": 1,
+      "expectedStderr": "Error: Division by zero"
+    },
+    {
+      "description": "Invalid number format",
+      "input": "0xg + 1",
+      "expectedExitCode": 1,
+      "expectedStderr": "Error: Invalid number format"
+    }
+  ]
+}
