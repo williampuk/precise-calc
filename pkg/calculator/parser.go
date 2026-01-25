@@ -44,9 +44,12 @@ func (l *Lexer) NextToken() (*Token, error) {
 	case '/':
 		l.position++
 		return NewToken(DIVIDE, "/", l.position-1), nil
-	case 'x', 'X':
+	case '(':
 		l.position++
-		return NewToken(MULTIPLY, "x", l.position-1), nil
+		return NewToken(LEFT_PAREN, "(", l.position-1), nil
+	case ')':
+		l.position++
+		return NewToken(RIGHT_PAREN, ")", l.position-1), nil
 	default:
 		// Check if it's a number
 		if unicode.IsDigit(rune(char)) || char == '.' || char == '-' || (char == '0' && l.peekNext() == 'x') {
@@ -256,6 +259,18 @@ func (p *Parser) parsePrimary() (*Expression, error) {
 		}
 
 		expr := NewNumberExpression(number)
+		p.nextToken()
+		return expr, nil
+
+	case LEFT_PAREN:
+		p.nextToken()
+		expr, err := p.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+		if p.current.Type != RIGHT_PAREN {
+			return nil, errors.New("missing closing parenthesis")
+		}
 		p.nextToken()
 		return expr, nil
 

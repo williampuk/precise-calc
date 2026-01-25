@@ -16,6 +16,8 @@ const (
 	MINUS
 	MULTIPLY
 	DIVIDE
+	LEFT_PAREN
+	RIGHT_PAREN
 	EOF
 )
 
@@ -32,6 +34,10 @@ func (t TokenType) String() string {
 		return "MULTIPLY"
 	case DIVIDE:
 		return "DIVIDE"
+	case LEFT_PAREN:
+		return "LEFT_PAREN"
+	case RIGHT_PAREN:
+		return "RIGHT_PAREN"
 	case EOF:
 		return "EOF"
 	default:
