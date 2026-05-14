@@ -6,6 +6,7 @@ bin/
 *.dll
 *.so
 *.dylib
+calc
 
 # Go module cache
 /root/.cache/go-build/
@@ -30,3 +31,6 @@ tmp/
 # OS files
 .DS_Store
 Thumbs.db
+
+# OpenCode
+.opencode

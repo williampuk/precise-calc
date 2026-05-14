@@ -1,18 +1,15 @@
 package main
 
 import (
-	"bufio"
+	calculator "calc/pkg/calc"
 	"fmt"
+	"io"
 	"os"
-	"os/signal"
 	"regexp"
 	"strings"
-	"syscall"
 
-	"precise-calc/pkg/calculator"
+	"github.com/peterh/liner"
 )
-
-var writer = bufio.NewWriter(os.Stdout)
 
 const MaxInputLength = 4096
 
@@ -64,24 +61,22 @@ func main() {
 }
 
 func runInteractiveMode() {
-	ignoreInterrupt()
-	defer resetInterrupt()
-
-	scanner := bufio.NewScanner(os.Stdin)
-	writer.Flush()
+	state := liner.NewLiner()
+	defer state.Close()
 
 	fmt.Println("Interactive mode. Press Ctrl+C or Ctrl+D to exit.")
-	writer.Flush()
 
 	for {
-		fmt.Print("> ")
-		writer.Flush()
-		if !scanner.Scan() {
+		line, err := state.Prompt("> ")
+		if err == io.EOF {
+			fmt.Println()
 			return
 		}
+		if err != nil {
+			continue
+		}
 
-		line := strings.TrimSpace(scanner.Text())
-
+		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
@@ -103,24 +98,8 @@ func runInteractiveMode() {
 		}
 
 		fmt.Printf("= %s\n", result.Result.String())
-		writer.Flush()
+		state.AppendHistory(line)
 	}
-}
-
-var originalTerm *os.File
-
-func ignoreInterrupt() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGINT)
-	go func() {
-		<-c
-		fmt.Println("\nExiting...")
-		os.Exit(0)
-	}()
-}
-
-func resetInterrupt() {
-	signal.Reset(os.Interrupt, syscall.SIGINT)
 }
 
 var validDecimal = regexp.MustCompile(`^[0-9]*\.?[0-9]+(?:[Ee][+-]?[0-9]+)?$`)

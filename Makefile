@@ -15,7 +15,7 @@ lint: fmt vet
 
 # Build the calculator
 build:
-	go build -o calculator ./cmd/calculator
+	go build -o calc ./cmd/calc
 
 # Run tests
 test:
