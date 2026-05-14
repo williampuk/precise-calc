@@ -113,19 +113,8 @@ func (n *Number) String() string {
 			i, _ := v.Int(nil)
 			return i.String()
 		}
-		// For decimal output, use scientific notation for very small numbers
-		// or fixed notation for reasonable numbers
-		abs := new(big.Float).Abs(v)
-		if abs.Cmp(big.NewFloat(1e-6)) < 0 && abs.Cmp(big.NewFloat(0)) > 0 {
-			// Use scientific notation for very small numbers
-			return v.Text('e', 10)
-		}
-
-		// For reasonable numbers, use fixed notation with trimmed zeros
-		s := v.Text('f', 20)
-		// Remove trailing zeros after decimal point
+		s := v.Text('f', 50)
 		if idx := strings.Index(s, "."); idx != -1 {
-			// Remove trailing zeros and trailing decimal point if any
 			s = strings.TrimRight(s, "0")
 			s = strings.TrimRight(s, ".")
 		}
