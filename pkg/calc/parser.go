@@ -6,6 +6,8 @@ import (
 	"unicode"
 )
 
+const maxParseDepth = 1000
+
 // Lexer performs lexical analysis on input expressions
 type Lexer struct {
 	input    string
@@ -136,12 +138,13 @@ type Parser struct {
 	lexer     *Lexer
 	current   *Token
 	peekToken *Token
+	depth     int
 }
 
 // NewParser creates a new parser for the given input
 func NewParser(input string) *Parser {
 	lexer := NewLexer(input)
-	parser := &Parser{lexer: lexer}
+	parser := &Parser{lexer: lexer, depth: 0}
 
 	// Initialize current and peek tokens
 	parser.nextToken()
@@ -207,6 +210,13 @@ func (p *Parser) parseAddition() (*Expression, error) {
 
 // parseUnary parses unary expressions (-, +)
 func (p *Parser) parseUnary() (*Expression, error) {
+	p.depth++
+	defer func() { p.depth-- }()
+
+	if p.depth > maxParseDepth {
+		return nil, errors.New("expression too deep")
+	}
+
 	if p.current.Type == MINUS {
 		p.nextToken()
 		expr, err := p.parseUnary() // Allow nested unary, like --5

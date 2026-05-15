@@ -7,7 +7,14 @@ import (
 	"strings"
 )
 
-// TokenType represents the type of a parsed token
+const FloatPrecision = 1000
+
+// Package-level pre-compiled regex variables for performance
+var (
+	validHexRE     = regexp.MustCompile(`^[A-Fa-f0-9]+$`)
+	validDecimalRE = regexp.MustCompile(`^[0-9]*\.?[0-9]+(?:[Ee][+-]?[0-9]+)?$`)
+)
+
 type TokenType int
 
 const (
@@ -131,10 +138,10 @@ func (n *Number) ToFloat() *big.Float {
 	if n.isHex {
 		// Convert hex big.Int to big.Float
 		i := n.value.(*big.Int)
-		f := new(big.Float).SetInt(i)
+		f := new(big.Float).SetPrec(FloatPrecision).SetInt(i)
 		return f
 	}
-	return new(big.Float).Copy(n.value.(*big.Float))
+	return new(big.Float).SetPrec(FloatPrecision).Copy(n.value.(*big.Float))
 }
 
 // ValidateNumberFormat validates number format according to specification
@@ -152,15 +159,13 @@ func ValidateNumberFormat(s string) error {
 		if hexPart == "" {
 			return errors.New("hex number cannot be empty after 0x")
 		}
-		validHex := regexp.MustCompile(`^[A-Fa-f0-9]+$`)
-		if !validHex.MatchString(hexPart) {
+		if !validHexRE.MatchString(hexPart) {
 			return errors.New("invalid characters in hexadecimal number")
 		}
 	} else {
 		// Decimal validation including exponential notation
 		// Allow: digits, decimal point, E/e, +, -
-		validDecimal := regexp.MustCompile(`^[0-9]*\.?[0-9]+(?:[Ee][+-]?[0-9]+)?$`)
-		if !validDecimal.MatchString(s) {
+		if !validDecimalRE.MatchString(s) {
 			return errors.New("invalid decimal number format")
 		}
 

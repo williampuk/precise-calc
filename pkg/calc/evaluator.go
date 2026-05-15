@@ -45,17 +45,17 @@ func evaluateExpression(expr *Expression) (*big.Float, error) {
 
 	switch expr.Operator {
 	case PLUS:
-		return new(big.Float).Add(left, right), nil
+		return new(big.Float).SetPrec(FloatPrecision).Add(left, right), nil
 	case MINUS:
-		return new(big.Float).Sub(left, right), nil
+		return new(big.Float).SetPrec(FloatPrecision).Sub(left, right), nil
 	case MULTIPLY:
-		return new(big.Float).Mul(left, right), nil
+		return new(big.Float).SetPrec(FloatPrecision).Mul(left, right), nil
 	case DIVIDE:
 		// Check for division by zero
 		if right.Sign() == 0 {
 			return nil, errors.New("division by zero")
 		}
-		return new(big.Float).Quo(left, right), nil
+		return new(big.Float).SetPrec(FloatPrecision).Quo(left, right), nil
 	default:
 		return nil, errors.New("unsupported operator: " + expr.Operator.String())
 	}

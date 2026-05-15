@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/peterh/liner"
@@ -100,10 +99,4 @@ func runInteractiveMode() {
 		fmt.Printf("= %s\n", result.Result.String())
 		state.AppendHistory(line)
 	}
-}
-
-var validDecimal = regexp.MustCompile(`^[0-9]*\.?[0-9]+(?:[Ee][+-]?[0-9]+)?$`)
-
-func init() {
-	_ = validDecimal
 }
